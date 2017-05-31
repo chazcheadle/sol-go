@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strconv"
 
@@ -35,13 +36,20 @@ type Sol struct {
 		SolarMidnightAzimuth  float64    `json:"solarMidnightAzimuth"`
 		SolarMidnightTime     novas.Time `json:"solarMidnightTime"`
 	} `json:"sunData"`
+	Error string `json:"error"`
 }
 
 // Retrieve data for specified location in decimal degrees.
-func getSolData(latitude float64, longitude float64) *Sol {
+func getSolData(latitude float64, longitude float64) (sol *Sol, err error) {
 
 	// Create new instance of Sol.
-	sol := &Sol{}
+	sol = &Sol{}
+
+	// Test for valid latitude and longitude.
+	if latitude > 90 || latitude < -90 || longitude > 180 || longitude < -180 {
+		sol.Error = "Invalid coordinates provided."
+		return sol, errors.New("Invalid coordinates provided.")
+	}
 
 	sol.SunData.Latitude = latitude
 	sol.SunData.Longitude = longitude
@@ -102,7 +110,7 @@ func getSolData(latitude float64, longitude float64) *Sol {
 	sol.SunData.SolarMidnightAzimuth = solarMidnightTopo.Az
 	sol.SunData.SolarMidnightTime = solarMidnightTime
 
-	return sol
+	return sol, nil
 
 }
 
@@ -116,15 +124,20 @@ func solHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 	}
 
-	sol := getSolData(latitude, longitude)
+	// Retrieve Sol data.
+	sol, err := getSolData(latitude, longitude)
+	if err != nil {
+		// Send Bad Request status code and Error message.
+		http.Error(w, sol.Error, 400)
+	} else {
+		// Convert Sol struct to JSON for output.
+		buffer, _ := json.MarshalIndent(sol, "", "    ")
 
-	// Convert Sol struct to JSON for output.
-	buffer, _ := json.MarshalIndent(sol, "", "    ")
-
-	// Send proper JSON reponse to ResponseWriter.
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Write(buffer)
+		// Send proper JSON reponse to ResponseWriter.
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Write(buffer)
+	}
 
 }
 
