@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sol-deployment
+  namespace: sol
+spec:
+  selector:
+    matchLabels:
+      app: sol
+  replicas: 4
+  template:
+    metadata:
+      labels:
+        app: sol
+    spec:
+      containers:
+      - name: sol
+        image: ccheadle/sol:latest
+        ports:
+        - containerPort: 3000

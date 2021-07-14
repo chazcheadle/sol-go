@@ -148,6 +148,6 @@ func main() {
 
 	router.GET("/sol", solHandler)
 	router.POST("/sol", solHandler)
-	http.ListenAndServe(":3001", router)
+	http.ListenAndServe(":3000", router)
 
 }

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: sol-service
+  namespace: sol
+  labels:
+    app: sol
+spec:
+  selector:
+    app: sol
+  ports:
+    - protocol: TCP
+      name: http
+      port: 3000
+      targetPort: 3000
