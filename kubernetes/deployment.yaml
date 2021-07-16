@@ -15,6 +15,6 @@ spec:
     spec:
       containers:
       - name: sol
-        image: ccheadle/sol:latest
+        image: ccheadle/sol:arm7
         ports:
         - containerPort: 3000

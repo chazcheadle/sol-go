@@ -8,8 +8,9 @@ metadata:
 spec:
   selector:
     app: sol
+  type: LoadBalancer
   ports:
     - protocol: TCP
       name: http
-      port: 3000
+      port: 80
       targetPort: 3000
